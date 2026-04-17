@@ -2,7 +2,10 @@ FROM gradle:8.7-jdk17 AS build
 
 WORKDIR /app
 
-COPY . .
+COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY gradle ./gradle
+COPY gradlew ./
+COPY src ./src
 
 RUN chmod +x gradlew
 RUN ./gradlew bootJar -x test --no-daemon
