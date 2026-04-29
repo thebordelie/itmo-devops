@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const AUTH_URL = "http://localhost:8080/auth";
+const HOST = window.location.hostname;
+const AUTH_URL = `http://${HOST}:8080/auth`;
 
 export default {
   login(credentials) {

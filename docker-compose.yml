@@ -21,8 +21,9 @@ services:
       start_period: 10s
 
   backend:
-    build: ./backend
+    image: cr.yandex/crpt9bdjmglbhc0e3eis/backend:1.0.2
     container_name: task-manager-backend
+    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,8 +45,9 @@ services:
       start_period: 40s
 
   frontend:
-    build: ./frontend
+    image: cr.yandex/crpt9bdjmglbhc0e3eis/frontend:1.0.2
     container_name: task-manager-frontend
+    restart: unless-stopped
     depends_on:
       backend:
         condition: service_healthy
