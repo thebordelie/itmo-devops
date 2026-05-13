@@ -7,6 +7,7 @@ import RegisterView from "../views/RegisterView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 
 const routes = [
+  { path: "/", redirect: "/tasks" },
   { path: "/tasks", component: TasksView, meta: { requiresAuth: true } },
   { path: "/login", component: LoginView },
   { path: "/register", component: RegisterView },

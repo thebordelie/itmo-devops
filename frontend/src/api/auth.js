@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const HOST = window.location.hostname;
-const AUTH_URL = `http://${HOST}:8080/auth`;
+const HOST = "api.task-manager.local";
+const AUTH_URL = `http://${HOST}/auth`;
 
 export default {
   login(credentials) {

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useUserStore } from "../stores/userStore";
-const API_HOST = window.location.hostname;
-const API_URL = `http://${API_HOST}:8080/tasks`;
+const HOST = "api.task-manager.local";
+const API_URL = `http://${HOST}/tasks`;
 
 export default {
   async getAll() {

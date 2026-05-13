@@ -1,0 +1,44 @@
+replicaCount: 1
+
+image:
+  repository: backend
+  tag: "1.0.3"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+postgres:
+  host: postgres
+  port: 5432
+  database: task_manager
+  username: postgres
+  password: postgres
+
+ingress:
+  enabled: true
+  className: nginx
+  host: api.task-manager.local
+  path: /
+  pathType: Prefix
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 15
+
+monitoring:
+  enabled: true
+  releaseLabel: monitoring
+  path: /actuator/prometheus
