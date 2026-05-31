@@ -177,6 +177,9 @@ jobs:
           uses: actions/setup-node@v4
           with:
             node-version: 20
+        
+        - name: chmod
+          run: chmod +x backend/gradlew
 
         - name: Backend tests with coverage
           run: |
