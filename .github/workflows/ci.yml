@@ -186,9 +186,10 @@ jobs:
           args: >
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.projectName=${{ github.event.repository.name }}
-            -Dsonar.sources=backend/src,frontend/src
-            -Dsonar.tests=backend/src/test
+            -Dsonar.projectName=itmo-devops
+            -Dsonar.sources=backend/src/main,frontend/src
+            -Dsonar.tests=backend/src/test,frontend/tests
+            -Dsonar.test.inclusions=backend/src/test/**/*,frontend/tests/**/*.spec.js,frontend/tests/**/*.test.js
             -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**,**/.gradle/**
             -Dsonar.qualitygate.wait=true
 
