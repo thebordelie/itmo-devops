@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: backend
-  tag: "1.0.3"
+  repository: cr.yandex/crpt9bdjmglbhc0e3eis/backend
+  tag: 5f9eb61614c023b7e9ee2d7b9b3f292baba71043
   pullPolicy: IfNotPresent
 
 service:
