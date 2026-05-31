@@ -114,13 +114,19 @@ jobs:
         run: npm ci
 
       - name: Run frontend tests with coverage
-        run: npm run test -- --coverage
+        run: npm run test -- --coverage --coverage.reporter=lcov --coverage.reporter=text
+
+      - name: Check frontend coverage file
+        run: |
+          ls -la coverage
+          test -f coverage/lcov.info
 
       - name: Upload frontend coverage
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
           path: frontend/coverage/lcov.info
+          if-no-files-found: error
 
   frontend-build:
     name: Frontend - Build
