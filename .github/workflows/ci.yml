@@ -254,3 +254,28 @@ jobs:
         run: |
           docker push ${{ env.REGISTRY }}/${{ env.REGISTRY_ID }}/${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
           docker push ${{ env.REGISTRY }}/${{ env.REGISTRY_ID }}/${{ env.FRONTEND_IMAGE }}:latest
+  deploy-update:
+  name: Update deployment image tag
+  runs-on: ubuntu-latest
+  needs: [sonar-scan, docker-push]
+
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Update backend image tag
+      run: |
+        sed -i "s|image: cr.yandex/.*/backend:.*|image: cr.yandex/${{ secrets.YCR_REGISTRY_ID }}/backend:${{ github.sha }}|" k8s/backend-deployment.yaml
+
+    - name: Update frontend image tag
+      run: |
+        sed -i "s|image: cr.yandex/.*/frontend:.*|image: cr.yandex/${{ secrets.YCR_REGISTRY_ID }}/frontend:${{ github.sha }}|" k8s/frontend-deployment.yaml
+
+    - name: Commit and push changes
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git add helm_out/
+        git commit -m "Deploy ${{ github.sha }}" || echo "No changes"
+        git push
