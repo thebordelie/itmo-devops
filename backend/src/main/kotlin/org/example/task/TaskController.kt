@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 @RestController
-@CrossOrigin(origins = ["http://localhost:5173"])
+@CrossOrigin(origins = ["*"])
 @RequestMapping("/tasks")
 class TaskController(
     private val taskRepository: TaskRepository

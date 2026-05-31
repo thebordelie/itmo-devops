@@ -1,0 +1,18 @@
+{{- if and .Values.persistence.enabled .Values.persistence.hostPath.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "postgres.fullname" . }}-data
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+spec:
+  capacity:
+    storage: {{ .Values.persistence.size }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: {{ .Values.persistence.reclaimPolicy }}
+  storageClassName: {{ .Values.persistence.storageClassName | quote }}
+  hostPath:
+    path: {{ .Values.persistence.hostPath.path | quote }}
+    type: {{ .Values.persistence.hostPath.type | quote }}
+{{- end }}

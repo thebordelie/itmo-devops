@@ -1,0 +1,38 @@
+---
+- name: Deploy task manager
+  hosts: vm
+  become: true
+
+  vars:
+    app_dir: /opt/task-manager
+    registry_url: cr.yandex
+
+  tasks:
+    - name: Login to Yandex Container Registry
+      shell: |
+        echo "{{ yc_oauth_token }}" | docker login \
+          --username oauth \
+          --password-stdin \
+          {{ registry_url }}
+      no_log: false
+
+    - name: Create app directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy docker-compose.yml
+      copy:
+        src: ../docker-compose.yml
+        dest: "{{ app_dir }}/docker-compose.yml"
+
+    - name: Pull images
+      command: docker-compose pull
+      args:
+        chdir: "{{ app_dir }}"
+
+    - name: Start containers
+      command: docker-compose up -d
+      args:
+        chdir: "{{ app_dir }}"

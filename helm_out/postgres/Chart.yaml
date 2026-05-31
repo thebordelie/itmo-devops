@@ -1,0 +1,6 @@
+apiVersion: v2
+name: task-manager-postgres
+description: PostgreSQL chart for Task Manager
+version: 0.1.0
+appVersion: "16-alpine"
+type: application

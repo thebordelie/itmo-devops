@@ -81,6 +81,9 @@ coverage
 
 # Vitest
 __screenshots__/
-
+.terraform
+.terraform.lock.hcl
+terraform.tfstate**
+authorized_key.json
 # Vite
 *.timestamp-*-*.mjs
