@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: itmo-devops
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/thebordelie/itmo-devops.git
+    targetRevision: master
+    path: helm_out
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
