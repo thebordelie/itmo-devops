@@ -37,8 +37,14 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Run tests
-        run: ./gradlew test
+      - name: Run backend tests with coverage
+        run: ./gradlew test jacocoTestReport
+
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/build/reports/jacoco/test/jacocoTestReport.xml
 
   backend-build:
     name: Backend - Build
@@ -109,8 +115,14 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Test
-        run: npm run test
+      - name: Run frontend tests with coverage
+        run: npm run test -- --coverage
+
+      - name: Upload frontend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/lcov.info
 
   frontend-build:
     name: Frontend - Build
@@ -159,56 +171,41 @@ jobs:
           path: /tmp/frontend-image.tar
           retention-days: 1
   sonar-scan:
-      runs-on: [self-hosted, k8s, minikube]
+    name: SonarQube Scan
+    runs-on: [self-hosted, k8s, minikube]
+    needs: [backend-test, frontend-test]
 
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 0
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-        - name: Set up JDK
-          uses: actions/setup-java@v4
-          with:
-            distribution: temurin
-            java-version: 21
-
-        - name: Set up Node.js
-          uses: actions/setup-node@v4
-          with:
-            node-version: 20
-        
-        - name: chmod
-          run: chmod +x backend/gradlew
-
-        - name: Backend tests with coverage
-          run: |
-            cd backend
-            ./gradlew test jacocoTestReport
-
-        - name: Frontend tests with coverage
-          run: |
-            cd frontend
-            npm ci
-            npm run test -- --coverage
-
-        - name: SonarQube Scan
-          uses: SonarSource/sonarqube-scan-action@v7
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-            SONAR_HOST_URL: http://sonarqube-sonarqube.sonarqube:9000
-          with:
-            args: >
-              -Dsonar.projectKey=itmo-devops
-              -Dsonar.projectName=itmo-devops
-              -Dsonar.sources=backend/src/main,frontend/src
-              -Dsonar.tests=backend/src/test,frontend/tests
-              -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**,**/.gradle/**
-              -Dsonar.coverage.jacoco.xmlReportPaths=backend/build/reports/jacoco/test/jacocoTestReport.xml
-              -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
-              -Dsonar.qualitygate.wait=true
-              -Dsonar.qualitygate.timeout=300
-              -Dsonar.coverage.jacoco.xmlReportPaths=backend/build/reports/jacoco/test/jacocoTestReport.xml
+      - name: Download backend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/build/reports/jacoco/test
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: http://sonarqube-sonarqube.sonarqube:9000
+        with:
+          args: >
+            -Dsonar.projectKey=itmo-devops
+            -Dsonar.projectName=itmo-devops
+            -Dsonar.sources=backend/src/main,frontend/src
+            -Dsonar.tests=backend/src/test,frontend/tests
+            -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**,**/.gradle/**
+            -Dsonar.coverage.jacoco.xmlReportPaths=backend/build/reports/jacoco/test/jacocoTestReport.xml
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
 
   docker-push:
     name: Docker - Push Images
