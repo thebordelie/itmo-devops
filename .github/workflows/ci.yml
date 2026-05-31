@@ -264,18 +264,19 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update backend image tag
+      - name: Update backend image
         run: |
-          sed -i "s|image: cr.yandex/.*/backend:.*|image: cr.yandex/${{ secrets.YCR_REGISTRY_ID }}/backend:${{ github.sha }}|" k8s/backend-deployment.yaml
+          sed -i "s|repository:.*|repository: cr.yandex/${{ secrets.YCR_REGISTRY_ID }}/backend|" helm_out/backend/values.yaml
+          sed -i "s|tag:.*|tag: ${GITHUB_SHA}|" helm_out/backend/values.yaml
 
-      - name: Update frontend image tag
+      - name: Update frontend image
         run: |
-          sed -i "s|image: cr.yandex/.*/frontend:.*|image: cr.yandex/${{ secrets.YCR_REGISTRY_ID }}/frontend:${{ github.sha }}|" k8s/frontend-deployment.yaml
-
+          sed -i "s|repository:.*|repository: cr.yandex/${{ secrets.YCR_REGISTRY_ID }}/frontend|" helm_out/frontend/values.yaml
+          sed -i "s|tag:.*|tag: ${GITHUB_SHA}|" helm_out/frontend/values.yaml
       - name: Commit and push changes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add helm_out/
-          git commit -m "Deploy ${{ github.sha }}" || echo "No changes"
+          git add helm_out/backend/values.yaml helm_out/frontend/values.yaml
+          git commit -m "Deploy ${GITHUB_SHA}" || echo "No changes"
           git push
