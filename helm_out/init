@@ -1,0 +1,7 @@
+#!/bin/bash
+
+minikube start --cpus=4 --memory=8192
+
+minikube service ingress-nginx-controller -n ingress-nginx --url
+
+kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80

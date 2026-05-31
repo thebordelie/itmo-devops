@@ -8,8 +8,13 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  {{- if .Values.persistence.hostPath.enabled }}
+  storageClassName: {{ .Values.persistence.storageClassName | quote }}
+  volumeName: {{ include "postgres.fullname" . }}-data
+  {{- else }}
   {{- if .Values.persistence.storageClassName }}
   storageClassName: {{ .Values.persistence.storageClassName | quote }}
+  {{- end }}
   {{- end }}
   resources:
     requests:

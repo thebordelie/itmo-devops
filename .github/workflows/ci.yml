@@ -158,12 +158,47 @@ jobs:
           name: frontend-image
           path: /tmp/frontend-image.tar
           retention-days: 1
+  sonar-scan:
+    name: SonarQube Cloud - SAST
+    runs-on: ubuntu-latest
+    needs:
+      - backend-test
+      - frontend-test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: SonarQube Cloud scan
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.projectName=${{ github.event.repository.name }}
+            -Dsonar.sources=backend/src,frontend/src
+            -Dsonar.tests=backend/src/test
+            -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**,**/.gradle/**
+            -Dsonar.qualitygate.wait=true
+
   docker-push:
     name: Docker - Push Images
     runs-on: ubuntu-latest
     needs:
       - backend-build
       - frontend-build
+      - sonar-scan
 
     steps:
       - name: Download backend Docker image artifact
